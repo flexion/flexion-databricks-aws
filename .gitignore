@@ -1,0 +1,25 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored — commit it.
+# It cryptographically pins provider versions for reproducible builds.
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Local IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Secrets
+*.pem
+*.key
+secrets.auto.tfvars

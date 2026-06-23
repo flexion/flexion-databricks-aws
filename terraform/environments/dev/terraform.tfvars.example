@@ -1,0 +1,41 @@
+# Copy this file to terraform.tfvars and fill in the values.
+# DO NOT commit terraform.tfvars — it is gitignored.
+
+aws_region   = "us-east-2"
+environment  = "dev"
+owner        = "flexion-platform"
+name_prefix  = "flexion-databricks-dev"
+
+# Networking
+vpc_cidr           = "10.40.0.0/16"
+availability_zones = ["us-east-2a", "us-east-2b"]
+
+# Databricks account credentials — sourced from the Databricks
+# accounts console (accounts.cloud.databricks.com) via a service
+# principal with account-admin role. See DatabricksSetup.md Stage 5.
+databricks_account_id    = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+databricks_client_id     = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+databricks_client_secret = "dose_..."
+
+# ---------- Access control ----------
+# Workspace admins — full control. Add 2-3 named admins so the
+# workspace stays manageable if one is unavailable.
+admin_user_emails = [
+  "admin1@flexion.us",
+  "admin2@flexion.us",
+  "admin3@flexion.us",
+]
+
+# Other Flexioneers who want to explore. Restricted to creating
+# clusters via the sandbox cluster policy (m6i.large, ≤2 workers,
+# 60min auto-term, spot).
+sandbox_user_emails = [
+  # "alice@flexion.us",
+  # "bob@flexion.us",
+]
+
+# ---------- Cost guardrail ----------
+monthly_budget_usd  = 100
+budget_alert_emails = [
+  "admin1@flexion.us",
+]
