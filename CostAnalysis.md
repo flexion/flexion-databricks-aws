@@ -123,6 +123,8 @@ Databricks charges **DBUs (Databricks Units)** on top of AWS infrastructure. The
 
 The workspace runs on **Premium** (required for cluster policies).
 
+The rates above are list price. An AWS Marketplace Growth Offer (set up in `DatabricksSetup.md` Stage 6) may apply a discount and shift these numbers.
+
 ### DBU consumption rate
 
 `m6i.large` = **0.380 DBU/hour** (per Databricks instance-type pricing table). Sandbox workloads are All-Purpose Compute (interactive notebooks), so the rate applied is $0.55/DBU.

@@ -123,8 +123,9 @@ flexion-databricks-aws/
 
 **Order of operations:**
 1. Use [`CostAnalysis.md`](CostAnalysis.md) to produce a cost estimate for the new AWS account request.
-2. Once the dedicated `Flexion Databricks` AWS account is provisioned, follow [`DatabricksSetup.md`](DatabricksSetup.md) for Databricks signup and credential capture.
-3. Then [`deploy.md`](deploy.md) for the Terraform deployment.
+2. Once the dedicated `Flexion Databricks` AWS account is provisioned, follow [`DatabricksSetup.md`](DatabricksSetup.md) Stages 1-5 for Databricks signup and credential capture.
+3. Run [`deploy.md`](deploy.md) for the Terraform deployment.
+4. Complete [`DatabricksSetup.md`](DatabricksSetup.md) Stage 6 (AWS Marketplace billing linkage) before the 14-day Databricks trial expires.
 
 ---
 

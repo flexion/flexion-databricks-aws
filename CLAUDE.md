@@ -18,7 +18,7 @@ This is **v1**: simple, admin-gated, cost-capped at $100/month AWS spend.
 flexion-databricks-aws/
 ├── CLAUDE.md                  # This file
 ├── README.md                  # Repo overview, scope, assumptions, next steps
-├── DatabricksSetup.md         # Stages 1-5: cost estimate → AWS account → Databricks signup → credentials
+├── DatabricksSetup.md         # Stages 1-6: cost estimate → AWS account → Databricks signup → credentials → Marketplace billing
 ├── deploy.md                  # Terraform deployment walkthrough; CI/CD trajectory
 ├── CostAnalysis.md            # AWS Pricing Calculator inputs, DBU math, instance justification, scaling path
 ├── .terraform-version         # 1.15.6 — picked up by tfenv
@@ -106,6 +106,7 @@ flexion-databricks-aws/
 - **Databricks signup uses email + password, not Google SSO.** The signup email is whatever Brice associates with the new Flexion AWS account in Stage 2 (could be a Google Workspace mailbox, a forwarding alias, or a shared inbox — confirm during Stage 3 hand-off, don't presume). Workspace-level Google SSO for individual Flexioneers is a v2 item, configured post-signup in the workspace admin console.
 - **Service principal only for Terraform Databricks auth.** No personal OAuth fallback. Captured in `DatabricksSetup.md` Stage 5b.
 - **Single AWS account for both dev and prod (v1).** Splitting later is documented but deferred. Triggers for splitting: real client data in prod, AWS quotas binding, compliance/audit scope at the account boundary, or independent cost ownership. Refer to `terraform/environments/prod/README.md` → "When to split".
+- **AWS Marketplace billing linkage is post-deploy, not pre-deploy.** It is purely a billing setup (charges Databricks usage through the AWS account) and does not affect Terraform deployment. Must complete before the 14-day Databricks trial expires. Each AWS Marketplace account can be linked to only one Databricks account. Refer to `DatabricksSetup.md` Stage 6.
 
 ### In flight
 

@@ -1,16 +1,16 @@
 # Setting Up Databricks for Flexion
 
-This doc covers everything that has to happen **before** running the Terraform in this repo. The path has five stages, ordered — each one unlocks the next:
+This doc covers everything that has to happen **before and after** the Terraform deployment. Six stages, ordered — each one unlocks the next:
 
 ```
 1. Cost estimate     →  2. AWS account approval     →  3. Provision AWS account
                                                           ↓
                                 4. Sign up Databricks  ←  ┘
                                           ↓
-                                5. Capture credentials   →  deploy.md
+                                5. Capture credentials   →  deploy.md  →  6. AWS Marketplace billing linkage
 ```
 
-The deliverables Terraform needs (`databricks_account_id`, `databricks_client_id`, `databricks_client_secret`) only become available after Stage 5.
+The deliverables Terraform needs (`databricks_account_id`, `databricks_client_id`, `databricks_client_secret`) become available after Stage 5. **Stage 6 is a billing-only step** — it does not affect the Terraform deployment and can be completed any time after Stage 2 as long as it is done before the 14-day trial expires.
 
 ---
 
@@ -83,6 +83,8 @@ Databricks signup uses **email + password**. The email is the one Brice associat
 The signup grants a $400 / 14-day trial credit, sufficient for the initial deployment and smoke test.
 
 > Google SSO at the workspace level (so individual Flexioneers sign in with their `@flexion.us` accounts) is configured **after** signup, in the workspace admin console. It is deferred to v2 — see README's "Next steps".
+
+> **Optional acceleration:** Stage 6 (AWS Marketplace billing linkage) can be completed immediately after Stage 4 instead of waiting until after Terraform deploy. Doing it early locks in the AWS-Marketplace billing path during the trial period and avoids any risk of the trial expiring before linkage is set up. The trade-off is committing the Flexion Databricks AWS account to this Databricks account for billing — which is the intended end state anyway.
 
 ---
 
@@ -159,4 +161,35 @@ budget_alert_emails = ["admin1@flexion.us"]
 
 ## Next: deploy.md
 
-With Stages 1-5 complete, Terraform has everything it needs. Continue with [`deploy.md`](deploy.md).
+With Stages 1-5 complete, Terraform has everything it needs. Continue with [`deploy.md`](deploy.md). After deployment is validated, return for Stage 6.
+
+---
+
+## Stage 6 — AWS Marketplace billing linkage
+
+This stage links the Databricks account to AWS Marketplace billing so usage gets charged through the Flexion AWS account instead of being invoiced directly by Databricks. It does **not** affect the Terraform deployment — it is a one-time billing setup that must be completed before the 14-day Databricks trial expires.
+
+Each AWS Marketplace account can be linked to only one Databricks account, so this AWS account is then committed to this Databricks account for billing purposes.
+
+### Cost implications
+
+The linkage itself does not change DBU rates. What it can change is set by the specific **AWS Growth Offer** terms Databricks extends to Flexion at signup.
+
+### Steps
+
+1. Sign in to the Databricks account console as an account admin: https://accounts.cloud.databricks.com.
+2. Left navigation → **Settings** → **Subscription & billing** → **Add payment method**.
+3. Select **AWS Marketplace account** as the payment method. This opens AWS Marketplace in a new tab.
+4. Complete the AWS Marketplace flow in AWS by subscribing/confirming the offer.
+5. **Click "Set up your account"** on the AWS confirmation page after subscribing. This step is required to complete the linkage; skipping it is the most common failure mode.
+6. Back in Databricks, confirm the AWS Marketplace payment method appears under **Subscription & billing**. Use the menu next to it to set it as the primary payment method if needed.
+
+### If something fails
+
+Common message: "already accepted" or similar — usually means that AWS Marketplace account is already linked to a different Databricks account.
+
+To debug, capture and send to the Databricks rep:
+
+- Screenshot of the page where the flow stuck
+- The AWS account ID being used for billing
+- Confirmation of whether **"Set up your account"** was clicked after subscribing in AWS Marketplace
