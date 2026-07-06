@@ -88,9 +88,11 @@ resource "databricks_permissions" "sandbox_policy_use" {
 # Add named admin users from var.admin_user_emails to the workspace
 # admin group. The "admins" group is created by Databricks automatically.
 resource "databricks_user" "admin" {
-  provider  = databricks
-  for_each  = toset(var.admin_user_emails)
-  user_name = each.value
+  provider              = databricks
+  for_each              = toset(var.admin_user_emails)
+  user_name             = each.value
+  workspace_access      = true
+  databricks_sql_access = true
 }
 
 data "databricks_group" "admins" {
@@ -107,9 +109,10 @@ resource "databricks_group_member" "admin" {
 
 # ---------- Sandbox users (regular workspace members) ----------
 resource "databricks_user" "sandbox_user" {
-  provider  = databricks
-  for_each  = toset(var.sandbox_user_emails)
-  user_name = each.value
+  provider         = databricks
+  for_each         = toset(var.sandbox_user_emails)
+  user_name        = each.value
+  workspace_access = true
 }
 
 resource "databricks_group_member" "sandbox_user" {

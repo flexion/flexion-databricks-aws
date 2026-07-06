@@ -115,13 +115,38 @@ From `terraform/environments/dev/`:
 
 ```bash
 terraform init
-terraform plan -out=tfplan
-terraform apply tfplan
 ```
 
 > **First-time setup:** on the very first `terraform init` in a freshly cloned repo, also run `terraform init -upgrade` once to resolve providers to the latest versions allowed by the constraints in `versions.tf`, then commit the updated `.terraform.lock.hcl`. Refer to "Refreshing versions" below for the ongoing workflow.
 
-> Workspace registration through the Databricks account API is the slow step in `apply` — leave it running rather than killing it.
+### First apply: two stages required
+
+The `databricks.workspace` provider is configured with a host and token derived from the workspace module's outputs. On a first apply the workspace does not yet exist, so those values are null — Terraform cannot validate workspace-scoped resources (`access_control` module) before the workspace is created.
+
+**Stage 1** — create all infrastructure except workspace-level access control:
+
+```bash
+terraform apply \
+  -target=module.vpc \
+  -target=module.s3 \
+  -target=module.iam \
+  -target=module.databricks_workspace \
+  -target=module.budgets
+```
+
+> Workspace registration through the Databricks account API is the slow step here — leave it running rather than killing it.
+
+**Stage 2** — workspace URL and token are now in state; the workspace provider can authenticate:
+
+```bash
+terraform apply
+```
+
+This applies the remaining `access_control` resources (cluster policy, groups, users).
+
+### Subsequent applies
+
+After the workspace exists in state, a plain `terraform apply` works without `-target`.
 
 Outputs include:
 
@@ -233,6 +258,7 @@ This removes the workspace, network, IAM role, and S3 bucket. The AWS account it
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
+| `access_control` resources fail with `Invalid access token` on first apply | `databricks.workspace` provider has null host/token before the workspace is created | Use the two-stage apply in Section 5 |
 | `databricks_mws_credentials` fails with `INVALID_PARAMETER_VALUE` | IAM role trust policy missing the Databricks principal or wrong external ID | Re-check `databricks_account_id` matches the value in tfvars |
 | `databricks_mws_workspaces` hangs > 20 min | Network/SG misconfigured (Databricks cannot reach data plane) | Verify NAT Gateway is healthy and SG allows 443 egress |
 | Cluster start fails with `INSTANCE_PROFILE_NOT_FOUND` | Trying to use an instance profile that was not created here | Remove the profile reference or extend the IAM module to provision one |

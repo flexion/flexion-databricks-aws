@@ -27,6 +27,10 @@ variable "cross_account_role_arn" {
   type = string
 }
 
+variable "cross_account_policy_id" {
+  type = string
+}
+
 variable "root_bucket_name" {
   type = string
 }

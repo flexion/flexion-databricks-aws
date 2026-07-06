@@ -25,6 +25,10 @@ terraform {
       # Floor: latest stable as of 2026-06-18 (v3.9.0).
       version = ">= 3.9, < 4.0"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.12, < 1.0"
+    }
   }
 
   # Remote state in S3 with native locking (Terraform 1.10+ — no DynamoDB).
