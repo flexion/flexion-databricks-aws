@@ -3,7 +3,7 @@ output "workspace_id" {
 }
 
 output "workspace_url" {
-  value = "https://${databricks_mws_workspaces.this.workspace_url}"
+  value = "https://${trimprefix(databricks_mws_workspaces.this.workspace_url, "https://")}"
 }
 
 output "workspace_token" {

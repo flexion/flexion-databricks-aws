@@ -60,7 +60,8 @@ module "databricks_workspace" {
   subnet_ids        = module.vpc.private_subnet_ids
   security_group_id = module.vpc.databricks_security_group_id
 
-  cross_account_role_arn = module.iam.cross_account_role_arn
+  cross_account_role_arn  = module.iam.cross_account_role_arn
+  cross_account_policy_id = module.iam.cross_account_policy_id
   root_bucket_name       = module.s3.root_bucket_name
 
   workspace_admins = var.admin_user_emails
