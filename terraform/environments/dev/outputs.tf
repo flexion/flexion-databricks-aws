@@ -32,3 +32,18 @@ output "monthly_budget_name" {
   description = "Name of the AWS Budgets alarm guarding monthly spend."
   value       = module.budgets.budget_name
 }
+
+output "unity_catalog_name" {
+  description = "Name of the Unity Catalog catalog."
+  value       = module.unity_catalog.catalog_name
+}
+
+output "unity_catalog_bucket" {
+  description = "S3 bucket backing Unity Catalog storage."
+  value       = module.unity_catalog.unity_catalog_bucket
+}
+
+output "unity_catalog_role_arn" {
+  description = "IAM role ARN used by the Unity Catalog storage credential."
+  value       = module.unity_catalog.unity_catalog_role_arn
+}

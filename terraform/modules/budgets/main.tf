@@ -11,12 +11,6 @@ resource "aws_budgets_budget" "monthly" {
     name = "TagKeyValue"
     values = [
       "user:Project$Flexion-Databricks",
-    ]
-  }
-
-  cost_filter {
-    name = "TagKeyValue"
-    values = [
       "user:Environment$${var.environment}",
     ]
   }

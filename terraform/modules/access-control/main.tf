@@ -17,8 +17,8 @@ resource "databricks_cluster_policy" "sandbox" {
   definition = jsonencode({
     "spark_version" = {
       "type"         = "allowlist"
-      "values"       = ["15.4.x-scala2.12", "14.3.x-scala2.12"]
-      "defaultValue" = "15.4.x-scala2.12"
+      "values"       = ["17.3.x-scala2.13", "15.4.x-scala2.12", "14.3.x-scala2.12"]
+      "defaultValue" = "17.3.x-scala2.13"
     },
     "node_type_id" = {
       "type"         = "allowlist"

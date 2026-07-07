@@ -21,6 +21,17 @@ data "aws_iam_policy_document" "trust" {
   }
 }
 
+# Required for EC2 Spot instances — created once per AWS account.
+# Ignored if it already exists.
+resource "aws_iam_service_linked_role" "spot" {
+  aws_service_name = "spot.amazonaws.com"
+
+  lifecycle {
+    ignore_changes        = [description]
+    create_before_destroy = false
+  }
+}
+
 resource "aws_iam_role" "cross_account" {
   name               = "${var.name_prefix}-cross-account-role"
   assume_role_policy = data.aws_iam_policy_document.trust.json
