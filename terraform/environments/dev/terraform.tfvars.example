@@ -34,6 +34,9 @@ sandbox_user_emails = [
   # "bob@flexion.us",
 ]
 
+# ---------- Unity Catalog ----------
+unity_catalog_name = "sandbox"
+
 # ---------- Cost guardrail ----------
 monthly_budget_usd  = 100
 budget_alert_emails = [

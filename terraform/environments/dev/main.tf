@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 locals {
   name_prefix = var.name_prefix
 
@@ -80,6 +82,25 @@ module "access_control" {
   sandbox_user_emails = var.sandbox_user_emails
 
   depends_on = [module.databricks_workspace]
+}
+
+# ---------- Unity Catalog ----------
+module "unity_catalog" {
+  source = "../../modules/unity-catalog"
+
+  providers = {
+    databricks.mws       = databricks.mws
+    databricks.workspace = databricks.workspace
+  }
+
+  name_prefix           = local.name_prefix
+  bucket_suffix         = random_string.suffix.result
+  databricks_account_id = var.databricks_account_id
+  aws_account_id        = data.aws_caller_identity.current.account_id
+  catalog_name          = var.unity_catalog_name
+  tags                  = local.common_tags
+
+  depends_on = [module.access_control]
 }
 
 # ---------- AWS Budgets (cost guardrail) ----------

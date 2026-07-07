@@ -67,6 +67,13 @@ variable "sandbox_user_emails" {
   default     = []
 }
 
+# ---------- Unity Catalog ----------
+variable "unity_catalog_name" {
+  description = "Name of the Unity Catalog catalog to create."
+  type        = string
+  default     = "sandbox"
+}
+
 # ---------- Budgets ----------
 variable "monthly_budget_usd" {
   description = "Monthly USD budget cap for AWS Budgets alerts."
