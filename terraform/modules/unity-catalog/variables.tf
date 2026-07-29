@@ -24,3 +24,25 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "metastore_id" {
+  description = "ID of the existing Unity Catalog metastore to bring under Terraform management."
+  type        = string
+}
+
+variable "metastore_name" {
+  description = "Display name of the metastore (must match the name shown in the Account Console)."
+  type        = string
+}
+
+variable "admin_user_emails" {
+  description = "Email addresses of users to add to the account-level metastore admins group."
+  type        = list(string)
+  default     = []
+}
+
+variable "terraform_sp_client_id" {
+  description = "Client ID of the Terraform service principal — added to metastore admins so it can manage system schema grants."
+  type        = string
+  sensitive   = true
+}

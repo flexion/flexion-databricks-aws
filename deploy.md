@@ -95,15 +95,42 @@ The first `terraform init` (Section 5) reads the backend block and writes state 
 
 The repo has two environments under `terraform/environments/` — `dev/` and `prod/` (placeholder, populated later when dev reaches steady state). All Terraform commands run from inside an environment directory.
 
+### tfvars storage
+
+`terraform.tfvars` is gitignored — it contains secrets (`databricks_client_secret`). The canonical copy lives in the state bucket:
+
+```
+s3://flexion-databricks-tfstate/tfvars/dev.tfvars
+```
+
+On a new machine, pull it down before running Terraform:
+
+```bash
+aws s3 cp s3://flexion-databricks-tfstate/tfvars/dev.tfvars \
+  terraform/environments/dev/terraform.tfvars
+```
+
+After making any changes to `terraform.tfvars`, sync it back:
+
+```bash
+aws s3 cp terraform/environments/dev/terraform.tfvars \
+  s3://flexion-databricks-tfstate/tfvars/dev.tfvars
+```
+
+> When CI/CD is implemented (GitHub Actions + OIDC), tfvars will be replaced by environment variables injected at runtime — the S3 copy becomes redundant at that point. See "CI/CD trajectory" below.
+
+### First-time setup
+
 ```bash
 git clone <this-repo>
 cd flexion-databricks-aws/terraform/environments/dev
 
+# Pull the canonical tfvars from S3 (see above), or seed from the example:
 cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars and fill in:
+# Fill in:
 #   - databricks_account_id
-#   - databricks_client_id
-#   - databricks_client_secret
+#   - databricks_client_id / databricks_client_secret / terraform_sp_client_id
+#   - metastore_id
 #   - admin_user_emails
 ```
 
