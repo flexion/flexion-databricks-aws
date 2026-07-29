@@ -13,6 +13,57 @@ terraform {
   }
 }
 
+# ---------- Metastore ownership ----------
+# Account-level group — visible to the MWS provider, which is what
+# databricks_metastore.owner requires. Workspace-level groups (like the
+# "admins" group managed by the access-control module) are not valid here.
+resource "databricks_group" "metastore_admins" {
+  provider     = databricks.mws
+  display_name = "${var.name_prefix}-metastore-admins"
+}
+
+data "databricks_user" "metastore_admin" {
+  provider  = databricks.mws
+  for_each  = toset(var.admin_user_emails)
+  user_name = each.value
+}
+
+resource "databricks_group_member" "metastore_admin" {
+  provider  = databricks.mws
+  for_each  = data.databricks_user.metastore_admin
+  group_id  = databricks_group.metastore_admins.id
+  member_id = each.value.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+data "databricks_service_principal" "terraform" {
+  provider       = databricks.mws
+  application_id = var.terraform_sp_client_id
+}
+
+resource "databricks_group_member" "terraform_sp" {
+  provider  = databricks.mws
+  group_id  = databricks_group.metastore_admins.id
+  member_id = data.databricks_service_principal.terraform.id
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Import before first apply:
+#   terraform import module.unity_catalog.databricks_metastore.this <metastore_id>
+resource "databricks_metastore" "this" {
+  provider      = databricks.mws
+  name          = var.metastore_name
+  owner         = databricks_group.metastore_admins.display_name
+  region        = "us-east-2"
+  force_destroy = false
+}
+
 # ---------- S3 bucket for Unity Catalog metastore storage ----------
 resource "aws_s3_bucket" "unity_catalog" {
   bucket = "${var.name_prefix}-unity-catalog-${var.bucket_suffix}"
@@ -172,6 +223,45 @@ resource "databricks_catalog" "this" {
   }
 
   depends_on = [databricks_external_location.unity_catalog]
+}
+
+# ---------- System schema grants ----------
+# The metastore admins group needs USE CATALOG on the system catalog before
+# schema-level grants can be applied by the Terraform SP.
+resource "databricks_grants" "system_catalog" {
+  provider = databricks.workspace
+  catalog  = "system"
+
+  grant {
+    principal  = databricks_group.metastore_admins.display_name
+    privileges = ["USE_CATALOG"]
+  }
+
+  depends_on = [databricks_group_member.terraform_sp]
+}
+
+resource "databricks_grants" "system_billing" {
+  provider = databricks.workspace
+  schema   = "system.billing"
+
+  grant {
+    principal  = databricks_group.metastore_admins.display_name
+    privileges = ["USE_SCHEMA", "SELECT"]
+  }
+
+  depends_on = [databricks_grants.system_catalog]
+}
+
+resource "databricks_grants" "system_access" {
+  provider = databricks.workspace
+  schema   = "system.access"
+
+  grant {
+    principal  = databricks_group.metastore_admins.display_name
+    privileges = ["USE_SCHEMA", "SELECT"]
+  }
+
+  depends_on = [databricks_grants.system_catalog]
 }
 
 # Grant catalog-level privileges to admins and sandbox users.

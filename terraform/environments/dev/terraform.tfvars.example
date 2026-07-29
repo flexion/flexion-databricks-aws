@@ -37,6 +37,12 @@ sandbox_user_emails = [
 # ---------- Unity Catalog ----------
 unity_catalog_name = "sandbox"
 
+# Metastore ID from the Account Console (accounts.cloud.databricks.com → Catalog).
+# Required for the one-time import: see deploy.md → "Unity Catalog metastore import".
+metastore_id   = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+metastore_name = "metastore_aws_us_east_2"
+
+
 # ---------- Cost guardrail ----------
 monthly_budget_usd  = 100
 budget_alert_emails = [

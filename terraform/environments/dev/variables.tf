@@ -35,6 +35,12 @@ variable "databricks_client_id" {
   sensitive   = true
 }
 
+variable "terraform_sp_client_id" {
+  description = "Client ID of the Terraform service principal — added to metastore admins so it can manage system schema grants."
+  type        = string
+  sensitive   = true
+}
+
 variable "databricks_client_secret" {
   description = "Databricks service principal client secret for account API."
   type        = string
@@ -72,6 +78,17 @@ variable "unity_catalog_name" {
   description = "Name of the Unity Catalog catalog to create."
   type        = string
   default     = "sandbox"
+}
+
+variable "metastore_id" {
+  description = "ID of the existing Unity Catalog metastore (from the Account Console)."
+  type        = string
+}
+
+variable "metastore_name" {
+  description = "Display name of the metastore (must match what's shown in the Account Console)."
+  type        = string
+  default     = "metastore_aws_us_east_2"
 }
 
 # ---------- Budgets ----------

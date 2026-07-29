@@ -98,6 +98,10 @@ module "unity_catalog" {
   databricks_account_id = var.databricks_account_id
   aws_account_id        = data.aws_caller_identity.current.account_id
   catalog_name          = var.unity_catalog_name
+  metastore_id           = var.metastore_id
+  metastore_name         = var.metastore_name
+  admin_user_emails      = var.admin_user_emails
+  terraform_sp_client_id = var.terraform_sp_client_id
   tags                  = local.common_tags
 
   depends_on = [module.access_control]
