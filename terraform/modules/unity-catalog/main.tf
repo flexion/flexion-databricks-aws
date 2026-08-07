@@ -233,8 +233,15 @@ resource "databricks_grants" "system_catalog" {
   catalog  = "system"
 
   grant {
-    principal  = databricks_group.metastore_admins.display_name
+    principal  = "account users"
     privileges = ["USE_CATALOG"]
+  }
+
+  # The SP needs MANAGE to read/write grants on this catalog. Must be declared
+  # here so Terraform does not wipe it on subsequent applies.
+  grant {
+    principal  = var.terraform_sp_client_id
+    privileges = ["USE_CATALOG", "MANAGE"]
   }
 
   depends_on = [databricks_group_member.terraform_sp]
