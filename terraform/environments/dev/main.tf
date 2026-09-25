@@ -100,11 +100,9 @@ module "unity_catalog" {
   catalog_name          = var.unity_catalog_name
   metastore_id           = var.metastore_id
   metastore_name         = var.metastore_name
-  admin_user_emails      = var.admin_user_emails
+  admin_user_ids         = module.access_control.admin_user_ids
   terraform_sp_client_id = var.terraform_sp_client_id
   tags                  = local.common_tags
-
-  depends_on = [module.access_control]
 }
 
 # ---------- AWS Budgets (cost guardrail) ----------

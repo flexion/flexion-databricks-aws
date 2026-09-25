@@ -35,10 +35,10 @@ variable "metastore_name" {
   type        = string
 }
 
-variable "admin_user_emails" {
-  description = "Email addresses of users to add to the account-level metastore admins group."
-  type        = list(string)
-  default     = []
+variable "admin_user_ids" {
+  description = "Map of admin user email to Databricks user ID. Passed from the access-control module to avoid MWS data source lookups that fail before users are created."
+  type        = map(string)
+  default     = {}
 }
 
 variable "terraform_sp_client_id" {
