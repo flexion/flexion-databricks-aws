@@ -22,17 +22,11 @@ resource "databricks_group" "metastore_admins" {
   display_name = "${var.name_prefix}-metastore-admins"
 }
 
-data "databricks_user" "metastore_admin" {
-  provider  = databricks.mws
-  for_each  = toset(var.admin_user_emails)
-  user_name = each.value
-}
-
 resource "databricks_group_member" "metastore_admin" {
   provider  = databricks.mws
-  for_each  = data.databricks_user.metastore_admin
+  for_each  = var.admin_user_ids
   group_id  = databricks_group.metastore_admins.id
-  member_id = each.value.id
+  member_id = each.value
 
   lifecycle {
     create_before_destroy = true
