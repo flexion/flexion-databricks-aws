@@ -220,6 +220,85 @@ From the workspace UI:
 
 ---
 
+## How-to
+
+### Add or remove a user
+
+Two roles are available:
+
+| Variable | Group | Permissions |
+|---|---|---|
+| `admin_user_emails` | `flexion-databricks-dev-admins` | Full workspace admin — cluster creation, workspace settings, user management |
+| `sandbox_user_emails` | `flexion-databricks-dev-sandbox-users` | `CAN_USE` on the sandbox cluster policy only — restricted to `m6i.large`, ≤ 2 workers, 60 min auto-term |
+
+**Steps:**
+
+1. Authenticate to the `Flexion Databricks` AWS account:
+
+   a. Sign in to https://d-9a6729e262.awsapps.com/start (federated through Google SSO).
+
+   b. Select the `Flexion Databricks` account → click **Access keys** next to `AdministratorAccess`.
+
+   c. Paste the credentials block into `~/.aws/credentials`:
+
+      ```ini
+      [flexion-databricks]
+      aws_access_key_id     = <from portal>
+      aws_secret_access_key = <from portal>
+      aws_session_token     = <from portal>
+      region                = us-east-2
+      ```
+
+   d. Activate the profile:
+
+      ```bash
+      export AWS_PROFILE=flexion-databricks
+      aws sts get-caller-identity   # confirm the correct account
+      ```
+
+   > Credentials expire after a few hours. Re-fetch from the portal when they do.
+
+3. Pull the current tfvars from S3:
+
+   ```bash
+   aws s3 cp s3://flexion-databricks-tfstate/tfvars/dev/terraform.tfvars \
+     terraform/environments/dev/terraform.tfvars
+   ```
+
+4. Edit `terraform/environments/dev/terraform.tfvars` — add or remove the email from the appropriate list:
+
+   ```hcl
+   # Full admin access:
+   admin_user_emails = [
+     "existing-admin@flexion.us",
+     "new-admin@flexion.us",
+   ]
+
+   # Sandbox (restricted) access:
+   sandbox_user_emails = [
+     "existing-user@flexion.us",
+     "new-user@flexion.us",
+   ]
+   ```
+
+5. Sync the updated tfvars back to S3:
+
+   ```bash
+   aws s3 cp terraform/environments/dev/terraform.tfvars \
+     s3://flexion-databricks-tfstate/tfvars/dev/terraform.tfvars
+   ```
+
+6. Apply:
+
+   ```bash
+   cd terraform/environments/dev/
+   terraform apply
+   ```
+
+   Added users receive a workspace invite email. Removed users are revoked immediately.
+
+---
+
 ## Refreshing versions
 
 **Why pin.** `terraform/environments/dev/versions.tf` declares loose constraints (e.g., `aws >= 6.51, < 7.0`). The exact provider builds are pinned in `.terraform.lock.hcl`, which **is** committed to the repo. That lockfile guarantees that any teammate (or CI, or a future deployment) gets the same provider builds on every `terraform init`.
